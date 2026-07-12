@@ -127,15 +127,23 @@ The following table summarizes the time complexity per request and the auxiliary
 
 ### 5.1 Correctness Verification
 
-To validate the programmatic correctness of the optimal caching implementations, the benchmark suite incorporates a validation check (`verifyImplementations`) prior to running the performance benchmarks. 
+To validate the programmatic correctness of the optimal caching implementations, the benchmark suite executes an automated verification routine prior to running the performance benchmarks. 
 
-According to the **Theorem of Optimality** (detailed in Section 3), Belady’s Farthest-in-Future algorithm yields a mathematically unique minimum number of cache misses for any request sequence $\sigma$ and cache capacity $K$. Since the Naive scanner, binary Heap, and balanced Set implementations are all programmatic realizations of this same underlying Farthest-in-Future eviction policy, they must generate identical hit and miss counts for any given input sequence to be correct.
+According to the **Theorem of Optimality** (detailed in Section 3), Belady’s Farthest-in-Future algorithm yields a mathematically unique minimum number of cache misses for any request sequence $\sigma$ and cache capacity $K$. Since the Naive scanner, binary Heap, and balanced Set implementations are all distinct programmatic realizations of this same Farthest-in-Future eviction policy, they must generate identical hit and miss counts for any given input sequence to be correct.
 
-Before executing the performance measurements, the suite simulates the request sequence across all three Belady variants and confirms that their outputs align. Across all experimental test runs (including standard random sequences and larger test cases like `cache5_5000` and `cache10_10000`), the correctness check successfully passed:
+Before executing the timing trials, the suite simulates the request sequence across all three Belady variants and confirms that their outputs match exactly. The following table showcases the correctness results obtained from the `cache5_1000` test case (cache size 5, 1,000 requests):
+
+| Implementation | Cache Size | Requests | Hits | Misses | Hit Ratio (%) | Miss Ratio (%) |
+| :--- | :---: | :---: | :---: | :---: | :---: | :---: |
+| **Naive** | 5 | 1000 | 64 | 936 | 6.40% | 93.60% |
+| **Heap** | 5 | 1000 | 64 | 936 | 6.40% | 93.60% |
+| **Set** | 5 | 1000 | 64 | 936 | 6.40% | 93.60% |
+
+Across all experimental test runs (including standard random sequences and larger test cases like `cache5_5000` and `cache10_10000`), the correctness check consistently reports:
 ```
 Belady Correctness Check: PASSED (Naive, Heap, Set)
 ```
-This empirical verification confirms that the lazy deletion updates in the heap and the eager index adjustments in the set do not introduce logic errors, confirming that all three optimized implementations behave identically to the theoretically proven optimal policy.
+This empirical verification confirms that the lazy deletion updates in the heap and the eager index adjustments in the set do not introduce logic errors, showing that all three optimized implementations behave identically to the theoretically proven optimal policy.
 
 ---
 
