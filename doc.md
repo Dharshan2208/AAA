@@ -87,6 +87,8 @@ Representative data points from the experimental runs:
   - LRU: **49.82%** Hit Ratio
   - FIFO: **50.10%** Hit Ratio
 
+![Hit Ratio vs Cache Size](/home/ani/aaa/results/plots/hit_ratio_vs_cache_size.png)
+
 ---
 
 ### 5.3 Implementation Comparison (Belady vs. LRU vs FIFO)
@@ -100,6 +102,10 @@ The following table presents a head-to-head comparison of hit ratios and runtime
 | **Belady (Naive)** | 3619 | 1381 | 72.38% | 245.70 us |
 | **Belady (Heap)** | 3619 | 1381 | 72.38% | 401.89 us |
 | **Belady (Set)** | 3619 | 1381 | 72.38% | 493.68 us |
+
+![Execution Time vs Request Count](/home/ani/aaa/results/plots/execution_time_vs_request_count.png)
+
+![Execution Time Comparison Bar Chart](/home/ani/aaa/results/plots/execution_time_bar_chart.png)
 
 ---
 
