@@ -191,9 +191,6 @@ void printImplementationReport(const BeladyAlgorithm& algorithm,
               << std::setw(9) << result.misses
               << std::setw(11) << std::fixed << std::setprecision(4)
               << result.hitRatio()
-              << std::setw(11) << result.missRatio()
-              << "    ";
-    printVector(std::cout, result.finalCache);
-    std::cout << '\n';
+              << std::setw(11) << result.missRatio() << '\n';
 }
 }

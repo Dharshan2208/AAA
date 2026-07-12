@@ -8,6 +8,9 @@ SOURCES := $(wildcard src/*.cpp)
 OBJECTS := $(patsubst src/%.cpp,$(OBJ_DIR)/%.o,$(SOURCES))
 DEPS := $(OBJECTS:.o=.d)
 
+ARGS := $(filter-out all run clean,$(MAKECMDGOALS))
+FIRST_GOAL := $(firstword $(MAKECMDGOALS))
+
 .PHONY: all run clean
 
 all: $(TARGET)
@@ -21,9 +24,12 @@ $(OBJ_DIR)/%.o: src/%.cpp
 	$(CXX) $(CXXFLAGS) -MMD -MP -c $< -o $@
 
 run: $(TARGET)
-	@./$(TARGET)
+	@./$(TARGET) $(ARGS)
 
 clean:
 	rm -rf build
+
+%: $(TARGET)
+	@if [ "$(FIRST_GOAL)" = "$@" ]; then ./$(TARGET) $(MAKECMDGOALS); fi
 
 -include $(DEPS)

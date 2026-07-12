@@ -10,6 +10,8 @@ add_executable(optimal_caching
     src/BeladyNaive.cpp
     src/BeladyHeap.cpp
     src/BeladySet.cpp
+    src/LRU.cpp
+    src/FIFO.cpp
     src/Benchmark.cpp
     src/Utils.cpp
     src/main.cpp
