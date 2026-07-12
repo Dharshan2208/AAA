@@ -6,6 +6,7 @@
 #include "LRU.hpp"
 #include "Utils.hpp"
 
+#include <algorithm>
 #include <exception>
 #include <filesystem>
 #include <fstream>
@@ -85,9 +86,11 @@ void printCorrectnessTableHeader()
               << std::string(73, '-') << '\n';
 }
 
-int parsePositiveInteger(const char* value, const std::string& name)
+int parsePositiveInteger(const std::string& value, const std::string& name)
 {
-    const int parsed = std::stoi(value);
+    std::string cleanValue = value;
+    cleanValue.erase(std::remove(cleanValue.begin(), cleanValue.end(), ','), cleanValue.end());
+    const int parsed = std::stoi(cleanValue);
     if (parsed <= 0) {
         throw std::invalid_argument(name + " must be positive");
     }
@@ -136,6 +139,22 @@ int main(int argc, char* argv[])
         Utils::ensureDefaultTestCases(testcaseDirectory);
         Utils::ensureDirectory(resultsDirectory);
         std::ofstream(csvPath, std::ios::trunc).close();
+
+        if (requestedCacheSize && requestedRequestCount) {
+            const int cacheSize = *requestedCacheSize;
+            const int requestCount = *requestedRequestCount;
+            const std::filesystem::path path =
+                testcaseDirectory / ("cache" + std::to_string(cacheSize) + "_" +
+                                     std::to_string(requestCount) + ".txt");
+            if (!std::filesystem::exists(path)) {
+                const int pageRange = std::max(10, cacheSize * 2);
+                const unsigned int seed =
+                    static_cast<unsigned int>(cacheSize * 10'000 + requestCount);
+                Utils::writeTestCase(path,
+                                     cacheSize,
+                                     Utils::generateRandomRequests(requestCount, pageRange, seed));
+            }
+        }
 
         const auto allTestCases = Utils::loadTestCases(testcaseDirectory);
         const auto testCases = filterTestCases(allTestCases,

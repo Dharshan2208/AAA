@@ -39,7 +39,6 @@ SimulationResult FIFO::simulateDetailed(const std::vector<int>& requests,
         insertionOrder.push(page);
     }
 
-    result.finalCache = Utils::sortedCacheFromSet(cache);
     return result;
 }
 

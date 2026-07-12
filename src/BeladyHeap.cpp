@@ -82,7 +82,6 @@ SimulationResult BeladyHeap::simulateDetailed(const std::vector<int>& requests,
         heap.emplace(nextUse, page);
     }
 
-    result.finalCache = Utils::sortedCacheFromSet(cache);
     return result;
 }
 

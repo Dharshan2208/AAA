@@ -8,8 +8,14 @@ SOURCES := $(wildcard src/*.cpp)
 OBJECTS := $(patsubst src/%.cpp,$(OBJ_DIR)/%.o,$(SOURCES))
 DEPS := $(OBJECTS:.o=.d)
 
-ARGS := $(filter-out all run clean,$(MAKECMDGOALS))
-FIRST_GOAL := $(firstword $(MAKECMDGOALS))
+# If the first goal is "run", we treat everything else as arguments
+ifeq ($(firstword $(MAKECMDGOALS)),run)
+  RUN_ARGS := $(wordlist 2,$(words $(MAKECMDGOALS)),$(MAKECMDGOALS))
+  ifneq ($(RUN_ARGS),)
+    $(RUN_ARGS):
+		@:
+  endif
+endif
 
 .PHONY: all run clean
 
@@ -24,12 +30,9 @@ $(OBJ_DIR)/%.o: src/%.cpp
 	$(CXX) $(CXXFLAGS) -MMD -MP -c $< -o $@
 
 run: $(TARGET)
-	@./$(TARGET) $(ARGS)
+	@./$(TARGET) $(RUN_ARGS)
 
 clean:
 	rm -rf build
-
-%: $(TARGET)
-	@if [ "$(FIRST_GOAL)" = "$@" ]; then ./$(TARGET) $(MAKECMDGOALS); fi
 
 -include $(DEPS)

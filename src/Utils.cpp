@@ -146,38 +146,11 @@ void ensureDirectory(const std::filesystem::path& directory)
     std::filesystem::create_directories(directory);
 }
 
-std::vector<int> sortedCache(const std::vector<int>& cache)
-{
-    std::vector<int> sorted = cache;
-    std::ranges::sort(sorted);
-    return sorted;
-}
-
-std::vector<int> sortedCacheFromSet(const std::unordered_set<int>& cache)
-{
-    std::vector<int> sorted(cache.begin(), cache.end());
-    std::ranges::sort(sorted);
-    return sorted;
-}
-
 bool sameSimulationResult(const SimulationResult& lhs,
                           const SimulationResult& rhs)
 {
     return lhs.hits == rhs.hits &&
-           lhs.misses == rhs.misses &&
-           lhs.finalCache == rhs.finalCache;
-}
-
-void printVector(std::ostream& output, const std::vector<int>& values)
-{
-    output << '[';
-    for (std::size_t i = 0; i < values.size(); ++i) {
-        output << values[i];
-        if (i + 1 != values.size()) {
-            output << ", ";
-        }
-    }
-    output << ']';
+           lhs.misses == rhs.misses;
 }
 
 void printImplementationReport(const BeladyAlgorithm& algorithm,

@@ -76,7 +76,6 @@ SimulationResult BeladySet::simulateDetailed(const std::vector<int>& requests,
         orderedByNextUse.insert({nextUse, page});
     }
 
-    result.finalCache = Utils::sortedCacheFromSet(cache);
     return result;
 }
 

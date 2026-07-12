@@ -43,8 +43,6 @@ SimulationResult LRU::simulateDetailed(const std::vector<int>& requests,
         cachePositions[page] = recencyOrder.begin();
     }
 
-    result.finalCache.assign(recencyOrder.begin(), recencyOrder.end());
-    result.finalCache = Utils::sortedCache(result.finalCache);
     return result;
 }
 

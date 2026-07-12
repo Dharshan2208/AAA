@@ -70,7 +70,6 @@ SimulationResult BeladyNaive::simulateDetailed(const std::vector<int>& requests,
         inCache.insert(page);
     }
 
-    result.finalCache = Utils::sortedCache(cache);
     return result;
 }
 

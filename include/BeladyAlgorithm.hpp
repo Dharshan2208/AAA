@@ -7,7 +7,6 @@ struct SimulationResult
 {
     int hits = 0;
     int misses = 0;
-    std::vector<int> finalCache;
 
     [[nodiscard]] int totalRequests() const;
     [[nodiscard]] double hitRatio() const;
