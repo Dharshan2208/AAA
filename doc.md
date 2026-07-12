@@ -185,6 +185,8 @@ The following table presents a head-to-head comparison of hit ratios and runtime
 
 ![Combined Performance (Hit Ratio & Execution Time)](/home/ani/aaa/results/plots/combined_performance.png)
 
+![Algorithm Performance Grid (Cache 50 & 100)](/home/ani/aaa/results/plots/cache_50_100_comparison.png)
+
 ---
 
 ### 5.4 Discussion of Results
@@ -192,7 +194,6 @@ The following table presents a head-to-head comparison of hit ratios and runtime
 1. **Hit Ratio Superiority**: Belady's algorithm consistently achieves a significantly higher hit ratio (~72.4% compared to ~49% for LRU and FIFO on 5,000 requests). This confirms that having complete future knowledge allows for optimal eviction decisions.
 2. **Online Overhead Trade-offs**: In online caching, FIFO is roughly twice as fast as LRU (116.65 us vs. 244.09 us). This is because FIFO only updates its queue on cache misses, whereas LRU must update its list on every single hit to maintain recency ordering, incurring substantial pointer manipulation overhead.
 3. **Offline Lookahead Overhead**: The need to scan or maintain future lookups makes all three Belady implementations slower than the online heuristics. Interestingly, for a small cache size like $C=5$, the **Naive** linear scanner actually outperforms the Heap and Set versions in execution time (245.70 us vs. 401.89 us and 493.68 us). While asymptotically slower, the naive approach avoids the memory allocation and pointer-chasing overhead associated with C++ node-based trees (`std::set`) and vector-backed priority queues.
-4. **Heap vs. Set Runtimes**: The Heap implementation is faster than the Set version. Even though the heap grows larger due to lazy deletion, it is backed by a contiguous `std::vector` which benefits from excellent cache locality. In contrast, the Set implementation uses a red-black tree, resulting in frequent dynamic allocations and poor cache line utilization.
 
 ---
 
