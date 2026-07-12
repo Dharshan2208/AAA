@@ -110,9 +110,10 @@ def main():
         ax1.grid(True, which='both', axis='both', linestyle='--', alpha=0.3)
         ax2.grid(False) # Turn off right grid to avoid clutter
 
-    # Create joint legends
-    lines1, labels1 = axes[0].get_legend_handles_labels()
-    lines2, labels2 = axes[0].twinx().get_legend_handles_labels()
+        # Store legend handles from the first plot to construct a combined legend
+        if i == 0:
+            lines1, labels1 = ax1.get_legend_handles_labels()
+            lines2, labels2 = ax2.get_legend_handles_labels()
     
     # Filter to get unique entries for the legend
     # Left axis legends are solid lines (Hit Ratio), right axis are dashed (Runtimes)
