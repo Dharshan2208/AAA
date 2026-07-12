@@ -104,8 +104,7 @@ def main():
         ax1.set_xticklabels(x_labels)
         ax1.set_ylim(-5, 105)
         
-        ax2.set_ylabel("Avg Execution Time (Microseconds, Log Scale)", labelpad=8)
-        ax2.set_yscale('log')
+        ax2.set_ylabel("Avg Execution Time (Microseconds)", labelpad=8)
         
         # Align grids nicely
         ax1.grid(True, which='both', axis='both', linestyle='--', alpha=0.3)
