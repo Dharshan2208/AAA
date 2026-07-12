@@ -4,6 +4,74 @@ This document provides a comprehensive design choice overview, algorithmic compl
 
 ---
 
+## 3. Formal Proof of Correctness
+
+### Theorem
+For any request sequence $\sigma = \langle r_1, r_2, \dots, r_n \rangle$ and a cache capacity $K$, Belady’s Farthest-in-Future (FIF) algorithm produces an eviction schedule with the minimum number of cache misses among all cache replacement algorithms.
+
+### 3.1 Initial Assumptions and Inductive Step
+Let $\sigma = \langle r_1, r_2, \dots, r_n \rangle$ be a request sequence over a finite page universe, and let $K$ be the cache capacity. A schedule is considered *reduced* if it brings a page into the cache only when the page is requested and is not already present. Thus, every cache miss corresponds to exactly one page insertion.
+
+Consider any arbitrary optimal schedule $S$ and Belady’s Farthest-in-Future schedule $S_{FF}$. Both schedules begin with the same initial cache contents $C_0$.
+
+We define that two schedules agree on the first $j$ requests if they produce the same cache contents after each of $r_1, \dots, r_j$. Concretely, this means they make identical eviction choices at every miss within those $j$ requests, resulting in identical cache contents after processing each request.
+
+*   **Base Case ($j = 0$):** Before any request is processed, both $S$ and $S_{FF}$ start with the same initial cache contents $C_0$. No requests have been processed, no evictions have occurred, and both schedules incur zero cache misses. Therefore, they agree trivially on the first 0 requests:
+    $$\text{misses}(S, \sigma[1..0]) = \text{misses}(S_{FF}, \sigma[1..0]) = 0$$
+
+*   **Inductive Assumption:** Assume that for some $j \ge 0$, there exists a reduced schedule $S$ (which is optimal) that agrees with $S_{FF}$ on the first $j$ requests. Because they are reduced and started from the same $C_0$, they hold identical cache contents $C_j$ at the start of request $r_{j+1}$.
+
+*   **Inductive Goal:** Construct another reduced schedule $S'$ that agrees with $S_{FF}$ on the first $j + 1$ requests while incurring no more cache misses than $S$:
+    $$\text{misses}(S', \sigma[1..n]) \le \text{misses}(S, \sigma[1..n])$$
+    This exchange step will allow us to prove the optimality of Belady's algorithm.
+
+---
+
+### 3.2 The Exchange Argument
+We consider what happens at step $j+1$ to construct $S'$. Exactly one of three cases occurs:
+
+*   **Case 1: Cache Hit**
+    Since $S$ and $S_{FF}$ share the same cache state $C_j$, a hit for one is a hit for the other. No eviction occurs. Both load nothing and change nothing. We set $S' = S$. The schedules still agree on $j+1$ requests, and the miss count does not change:
+    $$\text{misses}(S', \sigma) = \text{misses}(S, \sigma)$$
+
+*   **Case 2: Cache Miss (Cache Not Full)**
+    Both schedules miss on $r_{j+1}$. Since $|C_j| < K$, $r_{j+1}$ is simply loaded with no eviction needed. Both make the exact same decision. We set $S' = S$. Agreement on $j+1$ requests holds, and the miss count remains unchanged.
+
+*   **Case 3: Cache Miss (Cache Full) - The Critical Case**
+    Both schedules miss on $r_{j+1}$ and $|C_j| = K$, so one page must be evicted by each. Let $e_{FF}$ be the page $S_{FF}$ evicts (the one whose next use is farthest in the future). Let $e_S$ be the page $S$ evicts (arbitrary, under its own rule).
+
+    If $e_S = e_{FF}$, both make the same eviction. We set $S' = S$, and the agreement extends to $j+1$ requests trivially. 
+    
+    If $e_S \neq e_{FF}$, an exchange must happen. Because $S_{FF}$ chose $e_{FF}$ as the farthest-future page, we know:
+    $$\tau_{j+1}(e_{FF}) \ge \tau_{j+1}(e_S)$$
+    where $\tau_{j+1}(p)$ denotes the index of the next request for page $p$.
+
+    **Constructing $S'$:** We define $S'$ to make identical decisions to $S$ on all requests, except at step $j+1$ it evicts $e_{FF}$ instead of $e_S$. After step $j+1$, $S'$ and $S_{FF}$ now hold identical cache contents: $(C_j \setminus \{e_{FF}\}) \cup \{r_{j+1}\}$. Thus, $S'$ successfully agrees with $S_{FF}$ on the first $j+1$ requests.
+
+    **Comparing Misses between $S$ and $S'$:** After the exchange at step $j+1$, $S$ has $e_{FF}$ in its cache and $e_S$ is out; $S'$ has $e_S$ in its cache and $e_{FF}$ is out. Let $t_S = \tau_{j+1}(e_S)$ be the next request for $e_S$, and $t_{FF} = \tau_{j+1}(e_{FF})$ be the next request for $e_{FF}$, where $t_{FF} \ge t_S$.
+
+    Between steps $j+2$ and $t_S - 1$, neither $e_S$ nor $e_{FF}$ is requested. Thus, $S$ and $S'$ handle every request identically and incur the same misses. At step $t_S$, $e_S$ is requested. $S$ incurs a miss because it evicted $e_S$ at step $j+1$, meaning it must bring $e_S$ in and evict some page $x$. Meanwhile, $S'$ hits on $e_S$ because it kept it. This is where $S'$ gains an advantage.
+
+    We now evaluate based on $t_{FF}$ and the evicted page $x$:
+    *   **Sub-case A: $t_{FF} = \infty$ (eFF is never requested again).**
+        $e_{FF}$ is in $S$'s cache but will never be needed. It was evicted from $S'$ at step $j+1$ with no future consequence. $S$ takes 1 miss at $t_S$, while $S'$ takes 0. Thus:
+        $$\text{misses}(S') < \text{misses}(S)$$
+    *   **Sub-case B: $t_{FF} < \infty$ and $x \neq e_{FF}$ ($S$ keeps $e_{FF}$ when evicting at $t_S$).**
+        At $t_S$, $S$ evicts $x \neq e_{FF}$, keeping $e_{FF}$ in its cache. At step $t_{FF}$, $e_{FF}$ is requested, and $S$ hits on it. $S'$ misses on $e_{FF}$, brings it in, and evicts $x$. Over the interval $[t_S, t_{FF}]$, both schedules have incurred exactly 1 miss ($S$ at $t_S$ and $S'$ at $t_{FF}$). After $t_{FF}$, their caches are synchronized (both have $e_S$ and $e_{FF}$, and both are missing $x$). Thus:
+        $$\text{misses}(S') \le \text{misses}(S)$$
+    *   **Sub-case C: $t_{FF} < \infty$ and $x = e_{FF}$ ($S$ evicts $e_{FF}$ when handling $t_S$).**
+        At $t_S$, $S$ evicts $e_{FF}$ to bring $e_S$ in. Now neither schedule has $e_{FF}$. At step $t_{FF}$, both schedules will miss on $e_{FF}$. Over the interval, $S$ incurs 2 misses ($t_S$ and $t_{FF}$), while $S'$ incurs only 1 miss ($t_{FF}$). Thus:
+        $$\text{misses}(S') < \text{misses}(S)$$
+
+---
+
+### 3.3 Conclusion of Proof
+In every possible scenario, the constructed schedule $S'$ incurs at most the number of misses as the optimal schedule $S$:
+$$\text{misses}(S') \le \text{misses}(S)$$
+By induction, we can transform any optimal schedule $S$ into the Farthest-in-Future schedule $S_{FF}$ step-by-step without ever increasing the total number of cache misses. Therefore, Belady's Farthest-in-Future algorithm is mathematically optimal.
+
+---
+
 ## 4. Implementation and Design Choices
 
 ### 4.1 Data Structure Used
@@ -59,13 +127,15 @@ The following table summarizes the time complexity per request and the auxiliary
 
 ### 5.1 Correctness Verification
 
-To guarantee the correctness of the three Belady implementations, the benchmark suite runs a validation check before executing the timing benchmarks. Since Belady's algorithm is deterministic, all three variants must return the exact same hit and miss counts for any given input sequence. 
+To validate the programmatic correctness of the optimal caching implementations, the benchmark suite incorporates a validation check (`verifyImplementations`) prior to running the performance benchmarks. 
 
-Across all test runs (including standard random sequences and larger test cases like `cache5_5000` and `cache10_10000`), the correctness check successfully passed:
+According to the **Theorem of Optimality** (detailed in Section 3), Belady’s Farthest-in-Future algorithm yields a mathematically unique minimum number of cache misses for any request sequence $\sigma$ and cache capacity $K$. Since the Naive scanner, binary Heap, and balanced Set implementations are all programmatic realizations of this same underlying Farthest-in-Future eviction policy, they must generate identical hit and miss counts for any given input sequence to be correct.
+
+Before executing the performance measurements, the suite simulates the request sequence across all three Belady variants and confirms that their outputs align. Across all experimental test runs (including standard random sequences and larger test cases like `cache5_5000` and `cache10_10000`), the correctness check successfully passed:
 ```
 Belady Correctness Check: PASSED (Naive, Heap, Set)
 ```
-This confirms that both the lazy heap approach and the eager set-based tracker accurately mirror the behavior of the reference naive scanner.
+This empirical verification confirms that the lazy deletion updates in the heap and the eager index adjustments in the set do not introduce logic errors, confirming that all three optimized implementations behave identically to the theoretically proven optimal policy.
 
 ---
 
