@@ -105,7 +105,7 @@ The following table presents a head-to-head comparison of hit ratios and runtime
 
 ![Execution Time vs Request Count](/home/ani/aaa/results/plots/execution_time_vs_request_count.png)
 
-![Execution Time Comparison Bar Chart](/home/ani/aaa/results/plots/execution_time_bar_chart.png)
+![Combined Performance (Hit Ratio & Execution Time)](/home/ani/aaa/results/plots/combined_performance.png)
 
 ---
 
