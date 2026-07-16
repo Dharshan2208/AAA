@@ -14,6 +14,9 @@ SimulationResult LRU::simulateDetailed(const std::vector<int>& requests,
                                        int cacheSize)
 {
     SimulationResult result;
+    if (requests.empty()) {
+        return result;
+    }
     if (cacheSize <= 0) {
         result.misses = static_cast<int>(requests.size());
         return result;

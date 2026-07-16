@@ -17,9 +17,11 @@ ifeq ($(firstword $(MAKECMDGOALS)),run)
   endif
 endif
 
-.PHONY: all run clean
+.PHONY: all run clean build
 
 all: $(TARGET)
+
+build: all
 
 $(TARGET): $(OBJECTS)
 	@mkdir -p $(dir $@)

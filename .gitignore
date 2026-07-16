@@ -4,3 +4,4 @@ testcases
 venv
 __pycache__
 *.pyc
+edgeCase.md
